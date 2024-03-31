@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:studymatcherf/home_page.dart';
 import 'package:studymatcherf/login_page.dart';
+import 'package:studymatcherf/register_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +34,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => LoginPage(),
         '/home': (context) => HomePage(),
+        '/register': (context) =>
+            RegisterPage(), // Add route for registration page
       },
     );
   }
