@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>140410400136-3pjn5tt6s9pfbh5774u47b1ofuoidn8h.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.140410400136-3pjn5tt6s9pfbh5774u47b1ofuoidn8h</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAlm2tErfUmDQjlg-L3WYlIokYTDFMh-pg</string>
+	<key>GCM_SENDER_ID</key>
+	<string>140410400136</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.studymatcherf.RunnerTests</string>
+	<key>PROJECT_ID</key>
+	<string>groupstudyplanner-96c44</string>
+	<key>STORAGE_BUCKET</key>
+	<string>groupstudyplanner-96c44.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:140410400136:ios:e2eac0b44684c2c4bd5e3d</string>
+	<key>DATABASE_URL</key>
+	<string>https://groupstudyplanner-96c44-default-rtdb.asia-southeast1.firebasedatabase.app</string>
+</dict>
+</plist>

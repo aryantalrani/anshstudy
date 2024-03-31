@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "140410400136",
+    "firebase_url": "https://groupstudyplanner-96c44-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "groupstudyplanner-96c44",
+    "storage_bucket": "groupstudyplanner-96c44.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:140410400136:android:8cb32ea62f84facebd5e3d",
+        "android_client_info": {
+          "package_name": "com.example.studymatcherf"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "140410400136-6qkb8n13endipo0p3efptuifjiflhcnm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxj8QBdSqO2Yi346zxpDLSlfhOU5h2N4E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "140410400136-6qkb8n13endipo0p3efptuifjiflhcnm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "140410400136-3pjn5tt6s9pfbh5774u47b1ofuoidn8h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.studymatcherf.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
