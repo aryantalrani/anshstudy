@@ -17,15 +17,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-  }
-
   bool isValidPhoneNumber(String phoneNumber) {
     // Regular expression to match phone numbers with 10 to 11 digits
     RegExp phoneNumberRegex = RegExp(r'^\d{10,11}$');
