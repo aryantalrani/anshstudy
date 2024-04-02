@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../Models/Topic.dart'; // Import the Topic class
+import '../Models/Topic.dart'; // Ensure this class is defined properly
 
 class SearchGroupsPage extends StatefulWidget {
   @override
@@ -10,6 +10,7 @@ class SearchGroupsPage extends StatefulWidget {
 
 class _SearchGroupsPageState extends State<SearchGroupsPage> {
   final TextEditingController _searchController = TextEditingController();
+  final Set<String> _joinedGroups = {};
 
   @override
   Widget build(BuildContext context) {
@@ -26,17 +27,19 @@ class _SearchGroupsPageState extends State<SearchGroupsPage> {
               decoration: InputDecoration(
                 hintText: 'Enter group name',
                 prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
               ),
               onChanged: (value) {
-                // Trigger search logic here
-                // You may want to use a debouncer or delay before triggering the search
+                setState(() {}); // Rebuild widget to trigger filter in StreamBuilder
               },
             ),
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream:
-                  FirebaseFirestore.instance.collection('topics').snapshots(),
+              stream: FirebaseFirestore.instance.collection('topics').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -45,29 +48,24 @@ class _SearchGroupsPageState extends State<SearchGroupsPage> {
                 } else {
                   List<Topic> groups = snapshot.data!.docs
                       .map((doc) => Topic.fromMap(doc.data()!))
+                      .where((topic) => topic.name.toLowerCase().contains(_searchController.text.toLowerCase()))
                       .toList();
-
-                  // Filter groups based on search query
-                  if (_searchController.text.isNotEmpty) {
-                    final query = _searchController.text.toLowerCase();
-                    groups = groups
-                        .where(
-                            (group) => group.name.toLowerCase().contains(query))
-                        .toList();
-                  }
 
                   return ListView.builder(
                     itemCount: groups.length,
                     itemBuilder: (context, index) {
                       Topic topic = groups[index];
-                      return GestureDetector(
-                        onTap: () {
-                          _joinGroup(topic.id);
-                        },
+                      return Card(
+                        margin: EdgeInsets.all(8),
                         child: ListTile(
                           title: Text(topic.name),
-                          trailing: _buildJoinButton(topic),
-                          // Add any other relevant information about the group
+                          trailing: _joinedGroups.contains(topic.id) ? Icon(Icons.check, color: Colors.green) : ElevatedButton(
+                            onPressed: () => _joinGroup(topic.id),
+                            child: Text('Join'),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
+                            ),
+                          ),
                         ),
                       );
                     },
@@ -81,29 +79,18 @@ class _SearchGroupsPageState extends State<SearchGroupsPage> {
     );
   }
 
-  Widget _buildJoinButton(Topic topic) {
-    String userId = FirebaseAuth.instance.currentUser!.uid;
-    bool isUserJoined = topic.joinedUsers.contains(userId);
-    return ElevatedButton(
-      onPressed: isUserJoined ? null : () => _joinGroup(topic.id),
-      child: Text(isUserJoined ? 'Joined' : 'Join'),
-    );
-  }
-
   void _joinGroup(String groupId) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
     try {
-      await FirebaseFirestore.instance
-          .collection('topics')
-          .doc(groupId)
-          .update({
+      await FirebaseFirestore.instance.collection('topics').doc(groupId).update({
         'joinedUsers': FieldValue.arrayUnion([userId]),
       });
-      // Show success message or navigate to a different page
+      setState(() {
+        _joinedGroups.add(groupId); // Add groupId to the set to update UI
+      });
     } catch (e) {
-      print('Error joining group: $e');
-      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error joining group: $e')));
     }
   }
 }

@@ -9,6 +9,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -16,12 +17,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  bool isValidPhoneNumber(String phoneNumber) {
-    // Regular expression to match phone numbers with 10 to 11 digits
-    RegExp phoneNumberRegex = RegExp(r'^\d{10,11}$');
-    return phoneNumberRegex.hasMatch(phoneNumber);
-  }
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -31,105 +27,112 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: 'Name'),
-            ),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            TextField(
-              controller: phoneController,
-              decoration: InputDecoration(labelText: 'Phone Number'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                String name = nameController.text.trim();
-                String email = emailController.text.trim();
-                String password = passwordController.text.trim();
-                String phone = phoneController.text.trim();
-
-                if (name.isEmpty ||
-                    email.isEmpty ||
-                    password.isEmpty ||
-                    phone.isEmpty) {
-                  _showErrorDialog(
-                      context, 'Error', 'Please fill in all fields.');
-                  return;
-                }
-
-                if (!isValidPhoneNumber(phone)) {
-                  _showErrorDialog(context, 'Error',
-                      'Please enter a valid phone number (10 to 11 digits).');
-                  return;
-                }
-
-                try {
-                  UserCredential userCredential =
-                      await _auth.createUserWithEmailAndPassword(
-                    email: email,
-                    password: password,
-                  );
-
-                  if (userCredential.user != null) {
-                    UserData userData = UserData(
-                      name: name,
-                      email: email,
-                      phoneNumber: phone,
-                      password: password, // Include password
-                    );
-
-                    // Save user data to Firestore only if user registration succeeds
-                    await _firestore
-                        .collection('users')
-                        .doc(userCredential.user!.uid)
-                        .set(userData.toJson());
-
-                    Navigator.pushReplacementNamed(context, '/home');
-                  }
-                } catch (e) {
-                  print('Error registering user: $e');
-                  String errorMessage =
-                      'An error occurred. Please try again later.';
-
-                  if (e is FirebaseAuthException) {
-                    switch (e.code) {
-                      case 'email-already-in-use':
-                        errorMessage =
-                            'The email address is already in use by another account.';
-                        break;
-                      case 'invalid-email':
-                        errorMessage = 'Invalid email address format.';
-                        break;
-                      case 'weak-password':
-                        errorMessage =
-                            'Password should be at least 6 characters.';
-                        break;
-                      default:
-                        errorMessage =
-                            'An error occurred. Please try again later.';
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(labelText: 'Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your name';
                     }
-                  }
-
-                  _showErrorDialog(context, 'Error', errorMessage);
-                }
-              },
-              child: Text('Register'),
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: emailController,
+                  decoration: InputDecoration(labelText: 'Email'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    } else if (!value.contains('@')) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: passwordController,
+                  decoration: InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a password';
+                    } else if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: phoneController,
+                  decoration: InputDecoration(labelText: 'Phone Number'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty || !isValidPhoneNumber(value)) {
+                      return 'Please enter a valid phone number';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                _isLoading
+                    ? CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: () => _register(context),
+                        child: Text('Register'),
+                      ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
+  }
+
+  bool isValidPhoneNumber(String phoneNumber) {
+    RegExp phoneNumberRegex = RegExp(r'^\d{10,11}$');
+    return phoneNumberRegex.hasMatch(phoneNumber);
+  }
+
+  void _register(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+      String name = nameController.text.trim();
+      String email = emailController.text.trim();
+      String password = passwordController.text.trim();
+      String phone = phoneController.text.trim();
+
+      try {
+        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        if (userCredential.user != null) {
+          UserData userData = UserData(
+            name: name,
+            email: email,
+            phoneNumber: phone, password: '',
+          );
+
+          await _firestore.collection('users').doc(userCredential.user!.uid).set(userData.toJson());
+
+          Navigator.pushReplacementNamed(context, '/home');
+        }
+      } catch (e) {
+        _showErrorDialog(context, 'Error', 'Failed to register. Please try again.');
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   void _showErrorDialog(BuildContext context, String title, String message) {
@@ -141,9 +144,7 @@ class _RegisterPageState extends State<RegisterPage> {
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: Text('OK'),
             ),
           ],

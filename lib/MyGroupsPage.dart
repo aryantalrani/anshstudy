@@ -24,25 +24,32 @@ class MyGroupsPage extends StatelessWidget {
           } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return Center(child: Text('No groups found.'));
           } else {
-            return ListView.builder(
+            return ListView.separated(
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, index) {
                 QueryDocumentSnapshot<Map<String, dynamic>> groupSnapshot =
                     snapshot.data!.docs[index]
                         as QueryDocumentSnapshot<Map<String, dynamic>>;
                 Topic topic = Topic.fromMap(groupSnapshot.data());
-                return ListTile(
-                  title: Text(topic.name),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GroupDetailsPage(topic: topic),
-                      ),
-                    );
-                  },
+                return Card(
+                  margin: EdgeInsets.all(8),
+                  elevation: 2,
+                  child: ListTile(
+                    leading: Icon(Icons.group), // Consider replacing with a relevant image/icon
+                    title: Text(topic.name),
+                    subtitle: Text('Tap to view details'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GroupDetailsPage(topic: topic),
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
+              separatorBuilder: (context, index) => Divider(),
             );
           }
         },

@@ -20,6 +20,8 @@ class UserData {
     );
   }
 
+  get photoUrl => null;
+
   Map<String, dynamic> toJson() {
     return {
       'name': name,

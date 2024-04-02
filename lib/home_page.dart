@@ -27,78 +27,62 @@ class HomePage extends StatelessWidget {
               return ListView(
                 padding: EdgeInsets.zero,
                 children: <Widget>[
-                  DrawerHeader(
+                  UserAccountsDrawerHeader(
+                    accountName: Text(userData.name,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    accountEmail: Text(userData.email),
+                    currentAccountPicture: CircleAvatar(
+                      backgroundImage: NetworkImage(userData.photoUrl ?? 'https://placekitten.com/200/200'), // Placeholder or actual image
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.blue,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Welcome,',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                        Text(
-                          userData.name,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.group_add,
+                    text: 'Create Group',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateGroupPage(),
+                      ),
                     ),
                   ),
-                  ListTile(
-                    title: Text('Create Group'), // New button
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CreateGroupPage(),
-                        ),
-                      );
-                    },
+                  _buildDrawerItem(
+                    icon: Icons.search,
+                    text: 'Search Groups',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SearchGroupsPage(),
+                      ),
+                    ),
                   ),
-                  ListTile(
-                    title: Text('Search Groups'), // New button
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SearchGroupsPage(),
-                        ),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    title: Text('Settings'),
+                  _buildDrawerItem(
+                    icon: Icons.settings,
+                    text: 'Settings',
                     onTap: () {
                       // Navigate to settings page
-                      // Add your navigation logic here
                     },
                   ),
-                  ListTile(
-                    title: Text('Log Out'),
+                  _buildDrawerItem(
+                    icon: Icons.exit_to_app,
+                    text: 'Log Out',
                     onTap: () async {
                       await FirebaseAuth.instance.signOut();
                       Navigator.pushReplacementNamed(context, '/');
                     },
                   ),
                   Divider(),
-                  ListTile(
-                    title: Text('My Groups'), // New section
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MyGroupsPage(),
-                        ),
-                      );
-                    },
+                  _buildDrawerItem(
+                    icon: Icons.group,
+                    text: 'My Groups',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MyGroupsPage(),
+                      ),
+                    ),
                   ),
                 ],
               );
@@ -106,13 +90,44 @@ class HomePage extends StatelessWidget {
           },
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('Logged in successfully!'),
-          ],
-        ),
+      body: _buildBody(context),
+    );
+  }
+
+  Widget _buildDrawerItem({required IconData icon, required String text, VoidCallback? onTap}) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(text),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text('Welcome to StudyMatcher!'),
+          SizedBox(height: 20),
+          ElevatedButton(
+            child: Text('Join a Group'),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SearchGroupsPage()),
+              );
+            },
+          ),
+          ElevatedButton(
+            child: Text('Create a Group'),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CreateGroupPage()),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

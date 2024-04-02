@@ -28,32 +28,49 @@ class ProfilePage extends StatelessWidget {
             return Center(child: Text('No data found'));
           }
           var userData = snapshot.data!.data() as Map<String, dynamic>;
-          return Padding(
+          return SingleChildScrollView(
             padding: EdgeInsets.all(16.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'Name: ${userData['name']}',
-                  style: TextStyle(fontSize: 18),
+                if (userData['photoUrl'] != null)
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: NetworkImage(userData['photoUrl']),
+                  ),
+                SizedBox(height: 20),
+                Card(
+                  child: ListTile(
+                    title: Text('Name'),
+                    subtitle: Text(userData['name']),
+                    leading: Icon(Icons.person),
+                  ),
                 ),
-                SizedBox(height: 10),
-                Text(
-                  'Email: ${userData['email']}',
-                  style: TextStyle(fontSize: 18),
+                Card(
+                  child: ListTile(
+                    title: Text('Email'),
+                    subtitle: Text(userData['email']),
+                    leading: Icon(Icons.email),
+                  ),
                 ),
-                SizedBox(height: 10),
-                Text(
-                  'Phone Number: ${userData['phoneNumber']}',
-                  style: TextStyle(fontSize: 18),
+                Card(
+                  child: ListTile(
+                    title: Text('Phone Number'),
+                    subtitle: Text(userData['phoneNumber'] ?? 'Not provided'),
+                    leading: Icon(Icons.phone),
+                  ),
                 ),
-                SizedBox(height: 10),
-                ElevatedButton(
+                SizedBox(height: 20),
+                ElevatedButton.icon(
                   onPressed: () async {
                     await _googleAuth.signOut();
                     Navigator.pushNamed(context, '/');
                   },
-                  child: Text('Sign Out'),
+                  icon: Icon(Icons.logout),
+                  label: Text('Sign Out'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white, backgroundColor: Colors.red, // Text color
+                  ),
                 ),
               ],
             ),
